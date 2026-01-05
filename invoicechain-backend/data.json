@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "title": "Website Dev Invoice",
+    "buyer": "TechCorp Ltd",
+    "amount": "1200 USD",
+    "escrowStage": "Verified",
+    "mintedNFT": false
+  },
+  {
+    "id": 2,
+    "title": "Manufacturing Goods",
+    "buyer": "Global Traders",
+    "amount": "85000 INR",
+    "escrowStage": "Partially Funded",
+    "mintedNFT": true
+  }
+]
