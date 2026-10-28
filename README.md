@@ -1,70 +1,124 @@
-# Getting Started with Create React App
+# InvoiceChain
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+InvoiceChain is a React prototype for invoice financing: an MSME uploads an invoice, an investor reviews it, and the interface walks through verification, NFT minting, and escrow funding.
 
-## Available Scripts
+**Status: front-end prototype with a demo Express API.** The screens and flows are present, but wallet minting, funding, and escrow transitions are simulated. No smart contract or IPFS integration is included.
 
-In the project directory, you can run:
+**Live UI:** <https://invoice-chain-rosy.vercel.app>
 
-### `npm start`
+> The deployed build is the static React app. Its investor list calls `http://127.0.0.1:5000`, so that list is empty unless the backend is running on the viewer's machine. There is no deployed backend.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## What is implemented
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- React routes for login, country selection, dashboard, invoice upload, investor view, and profile.
+- MetaMask wallet connection through `window.ethereum` and `ethers.BrowserProvider`.
+- Investor invoice list loaded from the Express backend (`GET /api/invoices/list`).
+- Invoice cards, NFT mint modal, funding action, escrow status visualization, and toast feedback.
+- Express demo API with JSON-file persistence for users, invoices, minting, escrow stage, and wallet address.
 
-### `npm test`
+## What is still a mock
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **Login is navigation only.** The email/password fields are not submitted, and the button routes to `/country`.
+- **Invoice upload is a UI shell.** The form has no submit handler, and no file is read or uploaded.
+- **Minting and funding are UI actions.** They show toasts; no contract call or IPFS upload occurs.
+- **Escrow stages are display data.** They are not enforced by a contract.
+- **Two backend implementations exist.** `invoicechain-backend/server.js` is the file-based API that actually runs. `controllers/`, `routes/`, and `models/` contain a Mongoose version that `server.js` does not mount.
+- **Some dashboard links point to routes that do not exist** (`/upload-invoice`, `/buyer`); the registered upload route is `/upload`.
 
-### `npm run build`
+## Tech stack
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| Layer | Technology |
+| --- | --- |
+| Frontend | React 18, Create React App, React Router 7, Tailwind CSS |
+| Wallet | ethers 6, MetaMask (`window.ethereum`) |
+| Backend | Node.js, Express 5, `data.json` file storage |
+| Optional scaffolding | Mongoose models/routes (not wired into `server.js`) |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Structure
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```text
+Invoice-Chain/
+├── src/
+│   ├── App.js                  # routes
+│   ├── pages/                  # Login, CountrySelect, Dashboard, UploadInvoice, Investor, Profile
+│   └── components/             # Navbar, InvoiceCard, NFTMintModal, EscrowStatus, WalletConnect, Toast
+├── invoicechain-backend/
+│   ├── server.js               # running demo API (port 5000, data.json)
+│   ├── controllers/            # Mongoose-based API (not mounted)
+│   ├── models/
+│   ├── routes/
+│   └── data.json
+├── public/
+└── package.json
+```
 
-### `npm run eject`
+## Run locally
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 1. Backend
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+cd invoicechain-backend
+npm install
+node server.js
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+The API starts on `http://127.0.0.1:5000`. `data.json` is created in the directory you run the command from.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 2. Frontend
 
-## Learn More
+In a second terminal:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+npm install
+npm start
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Open `http://localhost:3000`. Use the investor page to see invoices returned by the backend.
 
-### Code Splitting
+### Production build
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+npm run build
+```
 
-### Analyzing the Bundle Size
+## API (the running `server.js`)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/api/auth/register` | Add a user to `data.json` |
+| POST | `/api/auth/login` | Check email/password |
+| POST | `/api/invoices/upload` | Append an invoice |
+| GET | `/api/invoices/list` | List invoices |
+| POST | `/api/invoices/mint` | Mark an invoice minted (mock) |
+| POST | `/api/invoices/escrow/update` | Set an escrow stage (mock) |
+| GET | `/api/invoices/escrow/:title` | Read an escrow stage |
+| POST | `/api/users/wallet` | Store a wallet address |
 
-### Making a Progressive Web App
+## Testing
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+There are no meaningful automated tests. The frontend has the default CRA test file, and the backend has no test suite. Treat this repository as a UI prototype and verify flows manually.
 
-### Advanced Configuration
+## Security notice
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+This is **not** safe for real invoices or personal data:
 
-### Deployment
+- Passwords are stored as plaintext in `data.json`; password hashing is listed as a dependency but is not used by the running server.
+- The API has no authentication or authorization middleware.
+- CORS is open to all origins.
+- There is no HTTPS, rate limiting, file validation, or audit log.
+- The frontend sends wallet addresses to the backend but never verifies ownership.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Before production use, replace the demo API with an authenticated service, hash passwords, add authorization, validate uploads, and perform real contract calls with audited code.
 
-### `npm run build` fails to minify
+## Roadmap
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. Wire login and registration to the API and protect routes.
+2. Connect the upload form to the backend with file validation.
+3. Implement wallet-signature authentication and persist the session.
+4. Replace mock minting/funding with an audited contract and IPFS storage.
+5. Unify the duplicated backend implementations and add tests.
+6. Add a deployed backend URL and remove hard-coded `127.0.0.1`.
+
+## License
+
+No license file is included. Ask before redistributing.
